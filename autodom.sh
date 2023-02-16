@@ -52,6 +52,7 @@ do
 	then
 		url=$f
 		count=2
+		pass
 	else
 		ip=$f
 		count=1
