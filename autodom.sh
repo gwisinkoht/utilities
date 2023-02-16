@@ -1,4 +1,6 @@
-# Accepts $1 = domain, $2 = list of inscope IPs.
+# Automates subdomain enumeration and nslookups.
+# Usage: bash autodom.sh $domain $inscopeIPs
+# 
 #
 
 # Get the 2nd level domain as a string
@@ -21,10 +23,15 @@ touch $temp/resolved.txt
 
 # Perform the crtsh search
 crtsh search -d $1 | tee ./$raws/crtsh_$name
-# cp ./crtsh-temp ./$raws/crtsh_$name # For the sake of testing so I don't run too many crtsh searches.
+
 
 # Get the list of subdomains from the crtsh search
 cat ./$raws/crtsh_$name | grep $name | choose 1 | sort -u | ansi2txt >> ./$output/subdomains-all.txt
+
+### OR
+## Use an existing list of subdomains
+# cat $3 >> ./$output/subdomains-all.txt 
+
 
 # Perform nslookups on all the subdomains excluding wildcards
 for f in `cat $output/subdomains-all.txt | grep -v '*'`; 
@@ -52,6 +59,7 @@ do
 	then
 		url=$f
 		count=2
+		continue
 	else
 		ip=$f
 		count=1
@@ -72,6 +80,8 @@ do
 		echo $f >> $output/subdomains-inscope.txt
 	fi
 done < $output/subdomains-resolving.txt
+
+cat $output/subdomains-inscope.txt | sort -u | tee $output/subdomains-inscope.txt
 
 
 
